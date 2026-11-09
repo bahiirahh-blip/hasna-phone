@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HP Zone Store - Jual Beli & Etalase HP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Header / Navbar -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="filterBrand('All')">
+                <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm">
+                    <i class="fa-solid fa-mobile-screen-button text-2xl text-yellow-400"></i>
+                </div>
+                <span class="font-extrabold text-xl tracking-tight">HP Zone Store</span>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button id="btnToggleAdmin" onclick="toggleAdminPanel()" class="bg-indigo-700 hover:bg-indigo-800 px-3.5 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2 border border-indigo-400/30 shadow-sm active:scale-95">
+                    <i class="fa-solid fa-gear text-yellow-300"></i>
+                    <span class="hidden sm:inline">Kelola Etalase</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <div class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-600 text-white py-10 px-4 shadow-inner">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight">Pusat Jual-Beli HP Baru & Bekas Berkualitas</h1>
+            <p class="text-indigo-100 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+                Pilih Smartphone impianmu dengan harga terbaik, garansi resmi/toko terjamin, serta transaksi langsung via WhatsApp & beragam metode pembayaran!
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <!-- Admin Panel (Tambah HP) - Collapsible Modal Style -->
+        <div id="adminPanel" class="hidden mb-8 bg-white p-6 rounded-2xl shadow-xl border border-indigo-100 transition-all">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+                <h2 class="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-indigo-600"></i> Tambah HP Baru ke Etalase
+                </h2>
+                <button onclick="toggleAdminPanel()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="addHpForm" onsubmit="handleAddHp(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Merek HP</label>
+                    <select id="hpBrand" required class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="">-- Pilih Merek --</option>
+                        <option value="iPhone">iPhone / Apple</option>
+                        <option value="Samsung">Samsung</option>
+                        <option value="Xiaomi">Xiaomi / Poco</option>
+                        <option value="Oppo">Oppo</option>
+                        <option value="Vivo">Vivo</option>
+                        <option value="Realme">Realme</option>
+                        <option value="Infinix">Infinix</option>
+                        <option value="Asus">Asus / ROG</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe / Model HP</label>
+                    <input type="text" id="hpModel" placeholder="Contoh: iPhone 13 Pro 128GB" required class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kondisi HP</label>
+                    <select id="hpCondition" required class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="Baru (BNIB)">Baru (BNIB)</option>
+                        <option value="Bekas (Mulus Like New)">Bekas (Mulus Like New)</option>
+                        <option value="Bekas (Lecet Pemakaian)">Bekas (Lecet Pemakaian)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Harga (Rp)</label>
+                    <input type="number" id="hpPrice" placeholder="Contoh: 7500000" required min="1" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">URL Gambar HP</label>
+                    <input type="url" id="hpImage" placeholder="https://example.com/foto.jpg (Opsional)" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Spesifikasi Singkat</label>
+                    <input type="text" id="hpSpecs" placeholder="Contoh: RAM 8GB / 128GB, Chipset Snapdragon" required class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="md:col-span-2 lg:col-span-3 flex justify-end gap-2 mt-2">
+                    <button type="button" onclick="toggleAdminPanel()" class="px-4 py-2 text-sm rounded-xl border border-slate-300 hover:bg-slate-100 font-medium transition">Batal</button>
+                    <button type="submit" class="px-6 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition shadow-md shadow-indigo-200">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan ke Etalase
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="flex flex-col md:flex-row gap-4 mb-6 justify-between items-center">
+            <!-- Filter Brand -->
+            <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 custom-scroll">
+                <button onclick="filterBrand('All')" class="brand-btn bg-indigo-600 text-white px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap shadow-sm">
+                    Semua
+                </button>
+                <button onclick="filterBrand('iPhone')" class="brand-btn bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
+                    iPhone
+                </button>
+                <button onclick="filterBrand('Samsung')" class="brand-btn bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
+                    Samsung
+                </button>
+                <button onclick="filterBrand('Xiaomi')" class="brand-btn bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
+                    Xiaomi
+                </button>
+                <button onclick="filterBrand('Oppo')" class="brand-btn bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
+                    Oppo
+                </button>
+                <button onclick="filterBrand('Vivo')" class="brand-btn bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
+                    Vivo
+                </button>
+                <button onclick="filterBrand('Realme')" class="brand-btn bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
+                    Realme
+                </button>
+                <button onclick="filterBrand('Infinix')" class="brand-btn bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
+                    Infinix
+                </button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative w-full md:w-72">
+                <input type="text" id="searchInput" onkeyup="searchHp()" placeholder="Cari tipe/merek HP..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+            </div>
+        </div>
+
+        <!-- Section Title & Status -->
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-slate-800">Daftar HP di Etalase</h2>
+            <span id="productCount" class="text-xs text-slate-500 font-medium bg-slate-200 px-2.5 py-1 rounded-full">Menampilkan 0 HP</span>
+        </div>
+
+        <!-- Product Grid -->
+        <div id="hpGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Cards populated dynamically via JavaScript -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl shadow-sm border border-slate-100">
+            <i class="fa-solid fa-mobile-xmark text-5xl text-slate-300 mb-3"></i>
+            <p class="text-slate-600 font-medium">Tidak ada HP yang sesuai dengan pencarian / filter Anda.</p>
+        </div>
+    </main>
+
+    <!-- Modal Order WhatsApp -->
+    <div id="orderModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scroll border border-slate-100">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <h3 class="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
+                <i class="fa-brands fa-whatsapp text-emerald-500 text-xl"></i> Form Pemesanan HP
+            </h3>
+            <p class="text-xs text-slate-500 mb-4">Lengkapi data di bawah ini untuk pemesanan langsung via WA</p>
+
+            <!-- Product Summary Info -->
+            <div id="modalHpDetail" class="bg-indigo-50/80 p-3 rounded-xl mb-4 border border-indigo-100 flex items-center gap-3">
+                <!-- Dynamic Content -->
+            </div>
+
+            <form id="orderForm" onsubmit="submitOrder(event)">
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Pembeli</label>
+                        <input type="text" id="buyerName" required placeholder="Masukkan nama lengkap Anda" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor WhatsApp Anda</label>
+                        <input type="tel" id="buyerPhone" required placeholder="08XXXXXXXXXX" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Alamat Pengiriman</label>
+                        <textarea id="buyerAddress" rows="2" required placeholder="Alamat lengkap tujuan pengiriman HP" class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Metode Pembayaran</label>
+                        <select id="paymentMethod" onchange="updatePaymentInfo()" required class="w-full border border-slate-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="">-- Pilih Metode Pembayaran --</option>
+                            <optgroup label="QRIS & E-Wallet">
+                                <option value="QRIS">QRIS All Payment</option>
+                                <option value="DANA">DANA</option>
+                                <option value="OVO">OVO</option>
+                            </optgroup>
+                            <optgroup label="Transfer Bank">
+                                <option value="BCA">Bank BCA</option>
+                                <option value="Mandiri">Bank Mandiri</option>
+                                <option value="BJB">Bank BJB</option>
+                                <option value="BRI">Bank BRI</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Payment Details Preview -->
+                    <div id="paymentDetails" class="bg-slate-100 p-3 rounded-xl text-xs space-y-1 hidden border border-slate-200">
+                        <!-- Dynamic Info -->
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Beli Sekarang via WA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Delete Confirmation Modal (Replacing standard window confirm) -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 class="font-bold text-slate-800 text-base mb-1">Hapus Produk HP?</h3>
+            <p class="text-xs text-slate-500 mb-5">Apakah Anda yakin ingin menghapus produk ini dari etalase toko?</p>
+            <div class="flex gap-2">
+                <button onclick="closeDeleteModal()" class="flex-1 py-2.5 text-xs font-semibold border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-100 transition">
+                    Batal
+                </button>
+                <button id="confirmDeleteBtn" class="flex-1 py-2.5 text-xs font-semibold bg-red-600 text-white rounded-xl hover:bg-red-700 transition shadow-md shadow-red-200">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer / Info Pembayaran -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h4 class="text-white font-bold mb-3 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen-button text-yellow-400"></i> HP Zone Store
+                </h4>
+                <p class="text-xs leading-relaxed text-slate-400">Toko Jual Beli HP terlengkap, terpercaya, dan bergaransi. Melayani transaksi COD / kirim cepat ke seluruh Indonesia.</p>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Metode Pembayaran Resmi</h4>
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-semibold border border-slate-700">QRIS</span>
+                    <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-semibold border border-slate-700">DANA</span>
+                    <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-semibold border border-slate-700">OVO</span>
+                    <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-semibold border border-slate-700">BCA</span>
+                    <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-semibold border border-slate-700">Mandiri</span>
+                    <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-semibold border border-slate-700">BJB</span>
+                    <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md font-semibold border border-slate-700">BRI</span>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Layanan & Admin WA</h4>
+                <p class="text-sm">WhatsApp Admin: <a href="https://wa.me/6287741970757" target="_blank" class="text-emerald-400 font-semibold hover:underline">+62 877-4197-0757</a></p>
+                <p class="text-xs text-slate-500 mt-2">Jam Operasional Toko: 09.00 - 21.00 WIB</p>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 mt-8 pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
+            &copy; 2026 HP Zone Store. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Store Admin WhatsApp Number (Nomor WA Toko)
+        const ADMIN_WA_NUMBER = "6287741970757";
+
+        // Rekening & E-Wallet Payment Info
+        const PAYMENT_INFO = {
+            "QRIS": { name: "QRIS All Payment", no: "Scan QR Code saat Invoice WA dikirim", icon: "fa-qrcode" },
+            "DANA": { name: "DANA", no: "0877-4197-0757 a/n HP Zone", icon: "fa-wallet" },
+            "OVO": { name: "OVO", no: "0877-4197-0757 a/n HP Zone", icon: "fa-wallet" },
+            "BCA": { name: "Bank BCA", no: "123-456-7890 a/n HP Zone Store", icon: "fa-building-columns" },
+            "Mandiri": { name: "Bank Mandiri", no: "137-000-123-4567 a/n HP Zone Store", icon: "fa-building-columns" },
+            "BJB": { name: "Bank BJB", no: "0012-3456-7890 a/n HP Zone Store", icon: "fa-building-columns" },
+            "BRI": { name: "Bank BRI", no: "0123-01-000456-50-8 a/n HP Zone Store", icon: "fa-building-columns" }
+        };
+
+        // Default Initial Catalog
+        let hpList = [
+            {
+                id: 1,
+                brand: "iPhone",
+                model: "iPhone 13 Pro Max 256GB",
+                condition: "Bekas (Mulus Like New)",
+                price: 13500000,
+                specs: "Screen 6.7 inch, Battery 92%, Fullset Original",
+                image: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500&auto=format&fit=crop&q=60"
+            },
+            {
+                id: 2,
+                brand: "Samsung",
+                model: "Samsung Galaxy S23 Ultra 12/256GB",
+                condition: "Baru (BNIB)",
+                price: 15999000,
+                specs: "Snapdragon 8 Gen 2, Camera 200MP, S-Pen",
+                image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&auto=format&fit=crop&q=60"
+            },
+            {
+                id: 3,
+                brand: "Xiaomi",
+                model: "Poco F5 12GB / 256GB Black",
+                condition: "Bekas (Mulus Like New)",
+                price: 4300000,
+                specs: "Snapdragon 7+ Gen 2, AMOLED 120Hz, Fast Charge 67W",
+                image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60"
+            },
+            {
+                id: 4,
+                brand: "Oppo",
+                model: "Oppo Reno 10 Pro 5G",
+                condition: "Baru (BNIB)",
+                price: 7200000,
+                specs: "RAM 12GB + 256GB, 80W SuperVOOC, Telephoto Camera",
+                image: "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=500&auto=format&fit=crop&q=60"
+            }
+        ];
+
+        let selectedBrandFilter = 'All';
+        let currentSelectedHp = null;
+        let deleteTargetId = null;
+
+        window.onload = function() {
+            const savedData = localStorage.getItem('hp_zone_store_list');
+            if (savedData) {
+                try {
+                    hpList = JSON.parse(savedData);
+                } catch(e) {
+                    console.error("Gagal membaca dari localStorage", e);
+                }
+            }
+            renderHpGrid();
+        };
+
+        function saveToStorage() {
+            localStorage.setItem('hp_zone_store_list', JSON.stringify(hpList));
+        }
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+        }
+
+        function renderHpGrid() {
+            const grid = document.getElementById('hpGrid');
+            const emptyState = document.getElementById('emptyState');
+            const countLabel = document.getElementById('productCount');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            grid.innerHTML = '';
+
+            let filteredList = hpList.filter(hp => {
+                const matchBrand = (selectedBrandFilter === 'All') || (hp.brand.toLowerCase() === selectedBrandFilter.toLowerCase());
+                const matchSearch = hp.model.toLowerCase().includes(searchVal) || hp.brand.toLowerCase().includes(searchVal) || hp.specs.toLowerCase().includes(searchVal);
+                return matchBrand && matchSearch;
+            });
+
+            countLabel.textContent = `Menampilkan ${filteredList.length} HP`;
+
+            if (filteredList.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filteredList.forEach(hp => {
+                const imgUrl = hp.image && hp.image.trim() !== '' ? hp.image : `https://placehold.co/400x300/e2e8f0/475569?text=${encodeURIComponent(hp.model)}`;
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 hover:-translate-y-1';
+                card.innerHTML = `
+                    <div class="relative h-48 bg-slate-100 overflow-hidden">
+                        <img src="${imgUrl}" alt="${hp.model}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300/e2e8f0/475569?text=Gambar+HP'">
+                        <span class="absolute top-3 left-3 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 bg-slate-900/80 backdrop-blur-sm text-white rounded-md">
+                            ${hp.brand}
+                        </span>
+                        <span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-1 ${hp.condition.includes('Baru') ? 'bg-emerald-500' : 'bg-amber-500'} text-white rounded-md shadow-sm">
+                            ${hp.condition}
+                        </span>
+                    </div>
+
+                    <div class="p-4 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base leading-snug line-clamp-2 mb-1">${hp.model}</h3>
+                            <p class="text-xs text-slate-500 mb-3 line-clamp-2 leading-relaxed">${hp.specs}</p>
+                        </div>
+
+                        <div>
+                            <div class="text-indigo-600 font-extrabold text-lg mb-3">
+                                ${formatRupiah(hp.price)}
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button onclick="openOrderModal(${hp.id})" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs py-2.5 px-3 rounded-xl transition text-center flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                                    <i class="fa-solid fa-cart-shopping"></i> Beli HP
+                                </button>
+                                <button onclick="openDeleteModal(${hp.id})" title="Hapus dari Etalase" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-2.5 rounded-xl transition text-xs active:scale-95">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            panel.classList.toggle('hidden');
+            if(!panel.classList.contains('hidden')) {
+                panel.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function handleAddHp(event) {
+            event.preventDefault();
+
+            const brand = document.getElementById('hpBrand').value;
+            const model = document.getElementById('hpModel').value;
+            const condition = document.getElementById('hpCondition').value;
+            const price = parseInt(document.getElementById('hpPrice').value);
+            const image = document.getElementById('hpImage').value;
+            const specs = document.getElementById('hpSpecs').value;
+
+            const newHp = {
+                id: Date.now(),
+                brand,
+                model,
+                condition,
+                price,
+                specs,
+                image
+            };
+
+            hpList.unshift(newHp);
+            saveToStorage();
+            renderHpGrid();
+
+            document.getElementById('addHpForm').reset();
+            toggleAdminPanel();
+            showNotification('HP Berhasil Ditambahkan ke Etalase!');
+        }
+
+        function openDeleteModal(id) {
+            deleteTargetId = id;
+            const modal = document.getElementById('deleteModal');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            confirmBtn.onclick = function() {
+                if (deleteTargetId !== null) {
+                    hpList = hpList.filter(hp => hp.id !== deleteTargetId);
+                    saveToStorage();
+                    renderHpGrid();
+                    showNotification('HP Berhasil Dihapus!');
+                    closeDeleteModal();
+                }
+            };
+            modal.classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            deleteTargetId = null;
+        }
+
+        function filterBrand(brand) {
+            selectedBrandFilter = brand;
+            
+            const buttons = document.querySelectorAll('.brand-btn');
+            buttons.forEach(btn => {
+                const btnText = btn.textContent.trim().toLowerCase();
+                if (btnText === brand.toLowerCase() || (brand === 'All' && btnText === 'semua')) {
+                    btn.className = 'brand-btn bg-indigo-600 text-white px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap shadow-sm';
+                } else {
+                    btn.className = 'brand-btn bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap';
+                }
+            });
+
+            renderHpGrid();
+        }
+
+        function searchHp() {
+            renderHpGrid();
+        }
+
+        function openOrderModal(hpId) {
+            const hp = hpList.find(item => item.id === hpId);
+            if (!hp) return;
+
+            currentSelectedHp = hp;
+
+            const modalHpDetail = document.getElementById('modalHpDetail');
+            const imgUrl = hp.image && hp.image.trim() !== '' ? hp.image : `https://placehold.co/100x100/e2e8f0/475569?text=${encodeURIComponent(hp.model)}`;
+
+            modalHpDetail.innerHTML = `
+                <img src="${imgUrl}" class="w-14 h-14 object-cover rounded-lg border border-slate-200 flex-shrink-0">
+                <div>
+                    <h4 class="font-bold text-slate-800 text-sm leading-tight">${hp.model}</h4>
+                    <p class="text-xs text-slate-500">${hp.condition}</p>
+                    <p class="text-xs font-bold text-indigo-600 mt-0.5">${formatRupiah(hp.price)}</p>
+                </div>
+            `;
+
+            document.getElementById('orderModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+            document.getElementById('orderForm').reset();
+            document.getElementById('paymentDetails').classList.add('hidden');
+            currentSelectedHp = null;
+        }
+
+        function updatePaymentInfo() {
+            const method = document.getElementById('paymentMethod').value;
+            const detailBox = document.getElementById('paymentDetails');
+
+            if (method && PAYMENT_INFO[method]) {
+                const info = PAYMENT_INFO[method];
+                detailBox.innerHTML = `
+                    <div class="flex items-center gap-2 text-indigo-700 font-semibold mb-1">
+                        <i class="fa-solid ${info.icon}"></i>
+                        <span>Instruksi ${info.name}</span>
+                    </div>
+                    <p class="text-slate-600">Nomor Rekening/Tujuan: <strong class="text-slate-800">${info.no}</strong></p>
+                    <p class="text-[11px] text-slate-500 italic mt-1">*Bukti transfer dikirimkan via chat WhatsApp setelah konfirmasi pesanan.</p>
+                `;
+                detailBox.classList.remove('hidden');
+            } else {
+                detailBox.classList.add('hidden');
+            }
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+
+            if (!currentSelectedHp) return;
+
+            const name = document.getElementById('buyerName').value;
+            const phone = document.getElementById('buyerPhone').value;
+            const address = document.getElementById('buyerAddress').value;
+            const payment = document.getElementById('paymentMethod').value;
+
+            const paymentData = PAYMENT_INFO[payment] || { name: payment, no: '-' };
+
+            const textMessage = 
+`*HALLO ADMIN, SAYA MAU ORDER HP* 📱
+----------------------------------------
+*Detail Produk:*
+• Merek & Tipe: ${currentSelectedHp.model}
+• Kondisi: ${currentSelectedHp.condition}
+• Harga: ${formatRupiah(currentSelectedHp.price)}
+
+*Data Pembeli:*
+• Nama: ${name}
+• No. HP/WA: ${phone}
+• Alamat Kirim: ${address}
+
+*Pembayaran Via:*
+• Metode: ${paymentData.name} (${paymentData.no})
+
+Mohon segera diproses pesanan saya, terima kasih!`;
+
+            const encodedMessage = encodeURIComponent(textMessage);
+            const waUrl = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodedMessage}`;
+
+            window.open(waUrl, '_blank');
+            closeModal();
+        }
+
+        function showNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl z-50 text-sm font-medium flex items-center gap-2 border border-slate-700';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> ${message}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
